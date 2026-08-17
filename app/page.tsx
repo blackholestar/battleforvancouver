@@ -121,7 +121,27 @@ function Page() {
     
   }
   
-  
+  async function undo() {
+    const response = await fetch("/api/undo", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const data = await response.json();
+    setGameState(data.newGameState);
+  }
+
+  async function redo() {
+    const response = await fetch("/api/redo", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const data = await response.json();
+    setGameState(data.newGameState);
+  }
 
   if (gameState === null) {
     return (<Loading />);
@@ -138,6 +158,7 @@ function Page() {
           : <ChallengePage gameState={gameState} addChallenge={addChallenge} />
         }
       </div>
+      <UndoRedo lastAction={gameState.lastAction} undo={undo} redo={redo} />
       <ResetGame resetGame={resetGame} />
     </div>
     );
@@ -186,6 +207,30 @@ function Score({redScore, blueScore}: ScoreProps) {
           {blueScore} 🔵
         </span>
       </div>
+  )
+}
+
+type UndoRedoProps = {
+  lastAction: string,
+  undo: () => void,
+  redo: () => void,
+}
+
+function UndoRedo({lastAction, undo, redo}: UndoRedoProps) {
+  return (
+    <div className="flex flex-col bg-white rounded-xl border p-4 space-y-2 text-lg font-semibold">
+      <div>
+        Last action: {lastAction}
+      </div>
+      <div className="flex space-x-4">
+        <button onClick={() => undo()} className="px-4 py-2 rounded-lg bg-blue-200 hover:bg-blue-300 transition">
+          ⎌↶ Undo
+        </button>
+        <button onClick={() => redo()} className="px-4 py-2 rounded-lg bg-blue-200 hover:bg-blue-300 transition">
+          Redo ↷
+        </button>
+      </div>
+    </div>
   )
 }
 

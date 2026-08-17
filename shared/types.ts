@@ -21,4 +21,6 @@ export type GameState = {
     availableBattles: Challenge[];
     currentBattle: Challenge|null;
     concurrentChallenges: number;
+    gameHistory: GameState[]|null;
+    lastAction: string;
 }

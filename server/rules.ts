@@ -12,7 +12,9 @@ export const initialGameState: GameState = {
     battleStatus: false,
     availableBattles: battles,
     currentBattle: null,
-    concurrentChallenges: 6
+    concurrentChallenges: 6,
+    gameHistory: [],
+    lastAction: "None"
   }
 
 
@@ -41,7 +43,9 @@ export function claimRegion(gameState: GameState, regionId: number, newStatus: s
         regions: gameState.regions.map(region => region.id === regionId
             ? { ...region, status: newStatus }
             : region
-        )
+        ),
+        lastAction: `Claimed region ${gameState.regions[regionId].name} for ${newStatus}`
+        
 
     }
 }
@@ -51,7 +55,8 @@ export function setRegionLock(gameState: GameState, regionId: number, locked: bo
         regions: gameState.regions.map(region => region.id === regionId
             ? {...region, locked: locked}
             : region
-        )
+        ),
+        lastAction: `${locked ? "Locked" : "Unlocked"} region ${gameState.regions[regionId].name}`
     }
 }
 
@@ -94,7 +99,10 @@ export function addChallenge(gameState: GameState, completedChallenge: Challenge
         ...gameState,
         availableChallenges: newAvailableChallenges,
         currentChallenges: newCurrentChallenges,
-        completedChallenges: newCompletedChallenges
+        completedChallenges: newCompletedChallenges,
+        lastAction: completedChallenge === null
+            ? "Reset game"
+            : `Completed challenge ${completedChallenge.name} and added challenge ${newChallenge.name}`
 
     }
 
@@ -102,11 +110,12 @@ export function addChallenge(gameState: GameState, completedChallenge: Challenge
 export function setBattleStatus(gameState: GameState, battleStatus: boolean): GameState {
     return ({
         ...gameState,
-        battleStatus: battleStatus
+        battleStatus: battleStatus,
+        lastAction: `${battleStatus ? "Started" : "Ended"} battle ${gameState.currentBattle !== null && gameState.currentBattle.name}`
     })
 }
 export function replaceBattle(gameState: GameState): GameState {
-    // replace current battle and remove from available
+    // replace current battle, remove from available, and set battle status to true
     if (gameState.availableBattles.length === 0) {
         return (gameState);
     }
@@ -118,7 +127,9 @@ export function replaceBattle(gameState: GameState): GameState {
     return ({
         ...gameState,
         currentBattle: newBattle,
-        availableBattles: newAvailableBattles
+        battleStatus: true,
+        availableBattles: newAvailableBattles,
+        lastAction: `Started battle ${newBattle.name}`
     })
 
 }

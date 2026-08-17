@@ -3,32 +3,56 @@ import { Region, Challenge, GameState} from '../shared/types';
 import {initialGameState, claimRegion, setRegionLock, initializeChallenges, addChallenge, setBattleStatus, replaceBattle} from './rules';
 
 class GameManager{
-    private gameState: GameState;
+    //private gameState: GameState;
+    private gameHistory: GameState[];
+    private currentIndex: number;
 
     constructor() {
-        this.gameState = initializeChallenges(initialGameState);
+        //this.gameState = initializeChallenges(initialGameState);
+        this.gameHistory = [initializeChallenges(initialGameState)];
+        this.currentIndex = 0;
+    }
+
+    private setNewGameState(newState: GameState) {
+        this.gameHistory = this.gameHistory.slice(0,this.currentIndex + 1);
+        this.gameHistory.push(newState);
+        //this.gameState = newState;
+        this.currentIndex++;
+    }
+    private currentGameState() {
+        return (this.gameHistory[this.currentIndex]);
     }
 
     claimRegion(regionId: number, status: string) {
-        this.gameState = claimRegion(this.gameState, regionId, status);
+        this.setNewGameState(claimRegion(this.currentGameState(), regionId, status));
     }
     setRegionLock(regionId: number, locked: boolean) {
-        this.gameState = setRegionLock(this.gameState, regionId, locked);
+        this.setNewGameState(setRegionLock(this.currentGameState(), regionId, locked));
     }
     addChallenge(completedChallenge: Challenge | null) {
-        this.gameState = addChallenge(this.gameState, completedChallenge);
+        this.setNewGameState(addChallenge(this.currentGameState(), completedChallenge));
     }
     setBattleStatus(battleStatus: boolean) {
-        this.gameState = setBattleStatus(this.gameState, battleStatus);
+        this.setNewGameState(setBattleStatus(this.currentGameState(), battleStatus));
     }
     replaceBattle() {
-        this.gameState = replaceBattle(this.gameState);
+        this.setNewGameState(replaceBattle(this.currentGameState()));
     }
     getGameState() {
-        return this.gameState;
+        return (this.gameHistory[this.currentIndex]);
     }
     resetGame() {
-        this.gameState = initializeChallenges(initialGameState);
+        this.setNewGameState(initializeChallenges(initialGameState));
+    }
+    undo() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+        }
+    }
+    redo() {
+        if (this.currentIndex + 1 < this.gameHistory.length) {
+            this.currentIndex++;
+        }
     }
     
 }
