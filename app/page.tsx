@@ -20,15 +20,25 @@ function Page() {
   // what page is currently displayed (map, challenges, rules (future))
   const [currentPage, setCurrentPage] = useState<string>("map"); 
 
-
   // get gamestate initially
   useEffect(() => {
-    fetch("/api/game")
+    fetch("/api/get-game-state")
       .then(response => response.json())
       .then(data => {
         setGameState(data.newGameState);
       });
   },[]);
+  // get gamestate every x seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const response = await fetch("/api/get-game-state");
+      const data = await response.json();
+
+      setGameState(data.newGameState);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   async function claimRegion(regionId: number, newStatus: string) {
     const response = await fetch("/api/claim-region", {
