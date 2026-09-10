@@ -35,7 +35,7 @@ function Page() {
       const data = await response.json();
 
       setGameState(data.newGameState);
-    }, 1000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -92,23 +92,20 @@ function Page() {
     
   }
 
-  async function setBattleStatus(battleStatus: boolean) {
-    const response = await fetch("/api/set-battle-status", {
+  async function stopBattle() {
+    const response = await fetch("/api/stop-battle", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        battleStatus
-      })
+      }
     });
     const data = await response.json();
     setGameState(data.newGameState);
     
   }
 
-  async function replaceBattle() {
-    const response = await fetch("/api/replace-battle", {
+  async function startBattle() {
+    const response = await fetch("/api/start-battle", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -160,7 +157,7 @@ function Page() {
     <div className="w-full min-h-screen bg-gray-50 p-6 w-full max-w-4xl mx-auto space-y-3">
       <div className="text-3xl font-bold text-center">Battle for Vancouver</div>
       <Score redScore={gameState.redScore} blueScore={gameState.blueScore} />
-      <Battle gameState={gameState} setBattleStatus={setBattleStatus} replaceBattle={replaceBattle} />
+      <Battle gameState={gameState} stopBattle={stopBattle} startBattle={startBattle} />
       <SetPageButton currentPage={currentPage} setCurrentPage={setCurrentPage} />
       <div className="bg-white rounded-2xl shadow-sm border p-4">
         {currentPage === "map"

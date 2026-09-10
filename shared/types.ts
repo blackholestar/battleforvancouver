@@ -24,3 +24,13 @@ export type GameState = {
     gameHistory: GameState[]|null;
     lastAction: string;
 }
+export type GameActionResult = 
+| {
+    success: true;
+    newGameState: GameState;
+}
+| {
+    success: false;
+    newGameState: GameState;
+    error: string;
+}

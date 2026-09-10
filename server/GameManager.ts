@@ -1,6 +1,6 @@
 import { init } from 'next/dist/compiled/webpack/webpack';
-import { Region, Challenge, GameState} from '../shared/types';
-import {initialGameState, claimRegion, setRegionLock, initializeChallenges, addChallenge, setBattleStatus, replaceBattle} from './rules';
+import { Region, Challenge, GameState, GameActionResult} from '../shared/types';
+import {initialGameState, claimRegion, setRegionLock, initializeChallenges, addChallenge, stopBattle, startBattle} from './rules';
 
 class GameManager{
     //private gameState: GameState;
@@ -13,36 +13,51 @@ class GameManager{
         this.currentIndex = 0;
     }
 
-    private setNewGameState(newState: GameState) {
-        this.gameHistory = this.gameHistory.slice(0,this.currentIndex + 1);
-        this.gameHistory.push(newState);
-        //this.gameState = newState;
-        this.currentIndex++;
-    }
-    private currentGameState() {
-        return (this.gameHistory[this.currentIndex]);
+    private setNewGameState(newState: GameState|string) {
+        // return value is true/false for success
+        let response: GameActionResult;
+
+        if (typeof newState === "string") {
+            // error
+            response = {
+                success: false,
+                newGameState: this.getGameState(),
+                error: newState,
+            }
+        }
+        else {
+            this.gameHistory = this.gameHistory.slice(0,this.currentIndex + 1);
+            this.gameHistory.push(newState);
+            this.currentIndex++;
+            response = {
+                success: true,
+                newGameState: this.getGameState(),
+            }
+        }
+        return response;
     }
 
+
     claimRegion(regionId: number, status: string) {
-        this.setNewGameState(claimRegion(this.currentGameState(), regionId, status));
+        return this.setNewGameState(claimRegion(this.getGameState(), regionId, status));
     }
     setRegionLock(regionId: number, locked: boolean) {
-        this.setNewGameState(setRegionLock(this.currentGameState(), regionId, locked));
+        return this.setNewGameState(setRegionLock(this.getGameState(), regionId, locked));
     }
     addChallenge(completedChallenge: Challenge | null) {
-        this.setNewGameState(addChallenge(this.currentGameState(), completedChallenge));
+        return this.setNewGameState(addChallenge(this.getGameState(), completedChallenge));
     }
-    setBattleStatus(battleStatus: boolean) {
-        this.setNewGameState(setBattleStatus(this.currentGameState(), battleStatus));
+    stopBattle() {
+        return this.setNewGameState(stopBattle(this.getGameState()));
     }
-    replaceBattle() {
-        this.setNewGameState(replaceBattle(this.currentGameState()));
+    startBattle() {
+        return this.setNewGameState(startBattle(this.getGameState()));
     }
     getGameState() {
         return (this.gameHistory[this.currentIndex]);
     }
     resetGame() {
-        this.setNewGameState(initializeChallenges(initialGameState));
+        return this.setNewGameState(initializeChallenges(initialGameState));
     }
     undo() {
         if (this.currentIndex > 0) {

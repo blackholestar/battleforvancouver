@@ -4,19 +4,19 @@ import { useState } from "react";
 
 type BattleProps = {
     gameState: GameState,
-    setBattleStatus: (newStatus: boolean) => void,
-    replaceBattle: () => void
+    stopBattle: () => void,
+    startBattle: () => void
 }
 
-export function Battle({gameState, setBattleStatus, replaceBattle}: BattleProps) {
+export function Battle({gameState, stopBattle, startBattle}: BattleProps) {
 
 
     return (
         <div className={`flex flex-col gap-4 p-4 border rounded-xl shadow-sm transition ${gameState.battleStatus ? "bg-red-100" : "bg-gray-100"}`}>
             <BattleDisplay gameState={gameState} />
             {gameState.battleStatus 
-            ? <StopBattleButton setBattleStatus={setBattleStatus} />
-            : gameState.availableBattles.length > 0 && <ReplaceBattleButton ReplaceBattle={replaceBattle} />}
+            ? <StopBattleButton stopBattle={stopBattle} />
+            : gameState.availableBattles.length > 0 && <ReplaceBattleButton startBattle={startBattle} />}
             
         </div>
     )
@@ -58,20 +58,20 @@ function BattleDisplay({gameState}: BattleDisplayProps) {
 }
 
 type StopBattleButtonProps = {
-    setBattleStatus: (newStatus: boolean) => void
+    stopBattle: () => void
 }
-function StopBattleButton({ setBattleStatus }: StopBattleButtonProps) {
+function StopBattleButton({ stopBattle }: StopBattleButtonProps) {
     return (
-        <button onClick={() => setBattleStatus(false)} className="rounded-lg px-4 py-2 bg-red-400 hover:bg-red-500 transition">End Battle</button>
+        <button onClick={() => stopBattle()} className="rounded-lg px-4 py-2 bg-red-400 hover:bg-red-500 transition">End Battle</button>
     )
 
 }
 
 type ReplaceBattleButtonProps = {
-    ReplaceBattle: () => void
+    startBattle: () => void
 }
-function ReplaceBattleButton({ReplaceBattle}: ReplaceBattleButtonProps) {
+function ReplaceBattleButton({startBattle}: ReplaceBattleButtonProps) {
     return (
-        <button onClick={() => ReplaceBattle()} className="rounded-lg px-4 py-2 bg-gray-300 hover:bg-gray-400 transition">Start New Battle</button>
+        <button onClick={() => startBattle()} className="rounded-lg px-4 py-2 bg-gray-300 hover:bg-gray-400 transition">Start New Battle</button>
     ) 
 }

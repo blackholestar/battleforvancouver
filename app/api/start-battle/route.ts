@@ -1,8 +1,7 @@
 import {gameManager} from "@/server/GameManager";
 
-export async function POST(request: Request) {
-    const {regionId, locked} = await request.json();
-    const response = gameManager.setRegionLock(regionId, locked);
+export async function POST() {
+    const response = gameManager.startBattle();
     if (!response.success) {
         return Response.json(response, {status: 409});
     }

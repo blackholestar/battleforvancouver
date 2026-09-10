@@ -1,5 +1,5 @@
 // rules - functions for modifying the game state
-import { Region, Challenge, GameState } from '../shared/types';
+import { Region, Challenge, GameState, GameActionResult } from '../shared/types';
 import {regions, challenges, battles} from './data';
 
 export const initialGameState: GameState = {
@@ -49,7 +49,13 @@ export function claimRegion(gameState: GameState, regionId: number, newStatus: s
 
     }
 }
-export function setRegionLock(gameState: GameState, regionId: number, locked: boolean): GameState {
+export function setRegionLock(gameState: GameState, regionId: number, locked: boolean): GameState|string {
+    // lock only if region is claimed
+    if (gameState.regions[regionId].status === "none") {
+        return (
+            "Cannot lock an unclaimed region"
+        )
+    }
     return {
         ...gameState,
         regions: gameState.regions.map(region => region.id === regionId
@@ -64,21 +70,31 @@ export function setRegionLock(gameState: GameState, regionId: number, locked: bo
 export function initializeChallenges(gameState: GameState): GameState {
     //  run addchallenge repeatedly to initialize; returns Challenge[]
     let newGameState = gameState;
+    let curGameState: GameState|string;
     for (let i = 0; i < gameState.concurrentChallenges; i++) {
-        newGameState = addChallenge(newGameState, null);
+        curGameState = addChallenge(newGameState, null);
+        if (typeof curGameState === "object") {
+        newGameState = curGameState;
+        }
     }
     return newGameState;
 }
 
 
-export function addChallenge(gameState: GameState, completedChallenge: Challenge | null): GameState {
+export function addChallenge(gameState: GameState, completedChallenge: Challenge | null): GameState|string {
     // Replaces challenge with new random one, or just adds a challenge (if null)
+
+    // check for error (completed challenge is not active)
+    if (completedChallenge !== null
+         && !gameState.currentChallenges.map(challenge => challenge.id).includes(completedChallenge.id)) {
+        return (`This challenge is not active (${completedChallenge.id})`);
+    }
 
     // determine new challenge
     const newChallenge = gameState.availableChallenges[Math.floor(Math.random() * gameState.availableChallenges.length)];
     // remove new challenge from available
     const newAvailableChallenges = gameState.availableChallenges.filter(challenge => challenge.id !== newChallenge?.id);
-    // add new challenge to current
+    // add new challenge to current (if exists)
     let newCurrentChallenges = newChallenge === undefined
     ? gameState.currentChallenges
     : [...gameState.currentChallenges,
@@ -107,18 +123,28 @@ export function addChallenge(gameState: GameState, completedChallenge: Challenge
     }
 
 }
-export function setBattleStatus(gameState: GameState, battleStatus: boolean): GameState {
+export function stopBattle(gameState: GameState): GameState|string {
+    // check for error
+    if (gameState.battleStatus === false) {
+        return ("Battle not active");
+    }
     return ({
         ...gameState,
-        battleStatus: battleStatus,
-        lastAction: `${battleStatus ? "Started" : "Ended"} battle ${gameState.currentBattle !== null && gameState.currentBattle.name}`
+        battleStatus: false,
+        lastAction: `Ended battle ${gameState.currentBattle !== null && gameState.currentBattle.name}`
     })
 }
-export function replaceBattle(gameState: GameState): GameState {
+export function startBattle(gameState: GameState): GameState|string {
     // replace current battle, remove from available, and set battle status to true
-    if (gameState.availableBattles.length === 0) {
-        return (gameState);
+
+    // check for error (battle already active, no available battles)
+    if (gameState.battleStatus === true) {
+        return ("Battle is already active");
     }
+    if (gameState.availableBattles.length === 0) {
+        return ("No available battles");
+    }
+
     // determine new battle
     const newBattle = gameState.availableBattles[Math.floor(Math.random() * gameState.availableBattles.length)];
     // remove from available battles
@@ -133,4 +159,5 @@ export function replaceBattle(gameState: GameState): GameState {
     })
 
 }
+
 
