@@ -1,8 +1,9 @@
 import {gameManager} from "@/server/GameManager";
 
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: { params: Promise<{ gameId: string }> }) {
     const {completedChallenge} = await request.json();
-    const response = gameManager.addChallenge(completedChallenge);
+    const { gameId } = await params;
+    const response = await gameManager.addChallenge(gameId, completedChallenge);
     if (!response.success) {
         return Response.json(response, {status: 409});
     }

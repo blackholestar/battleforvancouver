@@ -2,6 +2,8 @@
 import { Region, Challenge, GameState, GameActionResult } from '../shared/types';
 import {regions, challenges, battles} from './data';
 
+
+
 export const initialGameState: GameState = {
     regions: regions,
     redScore: 0,
@@ -13,7 +15,6 @@ export const initialGameState: GameState = {
     availableBattles: battles,
     currentBattle: null,
     concurrentChallenges: 6,
-    gameHistory: [],
     lastAction: "None"
   }
 

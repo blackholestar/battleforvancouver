@@ -21,9 +21,15 @@ export type GameState = {
     availableBattles: Challenge[];
     currentBattle: Challenge|null;
     concurrentChallenges: number;
-    gameHistory: GameState[]|null;
     lastAction: string;
 }
+export type StoredGame = {
+    id: number; //game id
+    gameHistory: GameState[];
+    currentIndex: number;
+    version: number;
+}
+
 export type GameActionResult = 
 | {
     success: true;
@@ -31,6 +37,6 @@ export type GameActionResult =
 }
 | {
     success: false;
-    newGameState: GameState;
+    newGameState: GameState|null;
     error: string;
 }
