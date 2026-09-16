@@ -24,6 +24,10 @@ export default function Page() {
       .then(response => response.json())
       .then(data => {
         setGameState(data.newGameState);
+        console.log(data);
+        if (data.error === "No game exists with this ID") {
+          alert("This game ID does not exist");
+        }
       });
   },[]);
 

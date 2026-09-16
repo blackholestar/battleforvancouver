@@ -46,7 +46,7 @@ class GameManager{
         if (error) {
             if (error.code === "PGRST116") {
                 // no game exists with this id
-                throw new Error(`No game exists with ID ${gameId}`);
+                throw new Error(`No game exists with this ID`);
             }
             throw new Error(`Failed to load game: ${error.message}`);
         }

@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ game
     } catch (error) {
         console.log(error);
         return Response.json(
-            { error: error },
+            { error: (error as Error).message },
             { status: 500 }
         );
     }
