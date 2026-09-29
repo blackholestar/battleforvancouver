@@ -23,9 +23,30 @@ export type GameState = {
     concurrentChallenges: number;
     lastAction: string;
 }
+
+export type StoredRegion = {
+    id: number;
+    status: string;
+    locked: boolean;
+}
+
+export type StoredGameState = {
+    regions: StoredRegion[];
+    redScore: number;
+    blueScore: number;
+    availableChallenges: number[];
+    completedChallenges: number[];
+    currentChallenges: number[];
+    battleStatus: boolean;
+    availableBattles: number[];
+    currentBattle: number | null;
+    concurrentChallenges: number;
+    lastAction: string;
+}
+
 export type StoredGame = {
     id: number; //game id
-    gameHistory: GameState[];
+    gameHistory: StoredGameState[];
     currentIndex: number;
     version: number;
 }
